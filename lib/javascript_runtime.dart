@@ -127,7 +127,7 @@ abstract class JavascriptRuntime {
           // console.log(typeof(sendMessage));
           // console.log('BLA');
           sendMessage('SetTimeout', JSON.stringify({ timeoutIndex, timeout}));
-            
+          return timeoutIndex; 
         } catch (e) {
           console.error('ERROR HERE',e.message);
         }
@@ -142,7 +142,8 @@ abstract class JavascriptRuntime {
 
         Timer(Duration(milliseconds: duration), () {
           evaluate("""
-            __NATIVE_FLUTTER_JS__setTimeoutCallbacks[$idx].call();
+            let callback = __NATIVE_FLUTTER_JS__setTimeoutCallbacks[$idx];
+            if (callback) callback.call();
             delete __NATIVE_FLUTTER_JS__setTimeoutCallbacks[$idx];
           """);
         });
@@ -150,6 +151,31 @@ abstract class JavascriptRuntime {
         print('Exception no setTimeout: $e');
       } on Error catch (e) {
         print('Erro no setTimeout: $e');
+      }
+    });
+    final clearTimeoutResult = evaluate("""
+      function clearTimeout(index) {
+        console.log('Clear Timeout Called');
+        try {
+          sendMessage('ClearTimeout', JSON.stringify({ index }));
+        } catch (e) {
+          console.error('ERROR HERE',e.message);
+        }
+      };
+      1
+    """);
+    print('clear TIMEOUT EVAL RESULT: $clearTimeoutResult');
+
+    onMessage('ClearTimeout', (dynamic args) {
+      try {
+        String idx = args['index'];
+        evaluate("""
+          delete __NATIVE_FLUTTER_JS__setTimeoutCallbacks[$idx];
+        """);
+      } on Exception catch (e) {
+        print('Exception no clearTimeout: $e');
+      } on Error catch (e) {
+        print('Erro no clearTimeout: $e');
       }
     });
   }
