@@ -162,9 +162,8 @@ abstract class JavascriptRuntime {
           console.error('ERROR HERE',e.message);
         }
       };
-      1
     """);
-    print('clear TIMEOUT EVAL RESULT: $clearTimeoutResult');
+    // print('clear TIMEOUT EVAL RESULT: $clearTimeoutResult');
 
     onMessage('ClearTimeout', (dynamic args) {
       try {
